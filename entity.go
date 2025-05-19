@@ -27,7 +27,7 @@ type LinksBO struct {
 
 // ---------- callback-------------------------
 
-type NetellerBackReq struct {
+type NetellerPaymentBackReq struct {
 	EventType     string    `json:"eventType"`
 	AttemptNumber string    `json:"attemptNumber"`
 	ResourceId    string    `json:"resourceId"`

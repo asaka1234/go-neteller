@@ -5,7 +5,7 @@ import (
 )
 
 // 充值/提现的回调处理(传入一个处理函数)
-func (cli *Client) CashierCallback(req NetellerBackReq, processor func(NetellerBackReq) error) error {
+func (cli *Client) PaymentCallback(req NetellerPaymentBackReq, processor func(NetellerPaymentBackReq) error) error {
 	log.Printf("Neteller#back#req: %+v", req)
 
 	//开始处理
