@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/big"
 	"net/http"
 	"net/url"
 )
@@ -21,7 +20,7 @@ func (cli *Client) Deposit(req NetellerPaymentReq) (*NetellerPaymentRsp, error) 
 // 预充值/预提现:都是走这里
 func (cli *Client) CreatePaymentHandle(req *NetellerPaymentReq) (*NetellerPaymentRsp, error) {
 	// Prepare request data
-	amountInCents := req.Amount.Mul(req.Amount, big.NewFloat(100)).Text('f', 0)
+	amountInCents := req.Amount * 100 //.Mul(req.Amount, big.NewFloat(100)).Text('f', 0)
 
 	transactionType := "STANDALONE_CREDIT"
 	if int(Deposit) == req.OutType {

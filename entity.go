@@ -1,17 +1,15 @@
 package go_neteller
 
-import "math/big"
-
 // ----------pre generate-------------------------
 
 // 充值/提现是同一个request, 同一个response.  只是里边一个参数不同而已.
 type NetellerPaymentReq struct {
-	OutType        int        `json:"outType"` //通过这个参数区别是deposit还是withdraw
-	MerchantRefNum string     `json:"merchantRefNum"`
-	Amount         *big.Float `json:"amount"`
-	Currency       string     `json:"currency"`
-	UserId         int64      `json:"userId"`
-	Email          string     `json:"email"` //要去user里拿
+	OutType        int     `json:"outType"` //通过这个参数区别是deposit还是withdraw
+	MerchantRefNum string  `json:"merchantRefNum"`
+	Amount         float64 `json:"amount"`
+	Currency       string  `json:"currency"`
+	UserId         int64   `json:"userId"`
+	Email          string  `json:"email"` //要去user里拿
 }
 
 type NetellerPaymentRsp struct {
@@ -41,14 +39,14 @@ type NetellerBackReq struct {
 }
 
 type PayLoadBO struct {
-	AccountId      string     `json:"accountId"`
-	Id             string     `json:"id"`
-	MerchantRefNum string     `json:"merchantRefNum"`
-	Amount         *big.Float `json:"amount"` // Using big.Float for precise decimal representation
-	CurrencyCode   string     `json:"currencyCode"`
-	Status         string     `json:"status"`
-	PaymentType    string     `json:"paymentType"`
-	TxnTime        string     `json:"txnTime"`
+	AccountId      string  `json:"accountId"`
+	Id             string  `json:"id"`
+	MerchantRefNum string  `json:"merchantRefNum"`
+	Amount         float64 `json:"amount"` // Using big.Float for precise decimal representation
+	CurrencyCode   string  `json:"currencyCode"`
+	Status         string  `json:"status"`
+	PaymentType    string  `json:"paymentType"`
+	TxnTime        string  `json:"txnTime"`
 }
 
 //----------------------------
