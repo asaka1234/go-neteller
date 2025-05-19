@@ -1,72 +1,99 @@
-package go_praxis
+package go_neteller
 
 import (
-	"crypto/tls"
-	"github.com/asaka1234/go-praxis/utils"
-	"time"
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"math/big"
+	"net/http"
+	"net/url"
 )
 
 // 下单(充值/提现是同一个接口)
-func (cli *Client) Deposit(req PraxisDepositReq) (*PraxisDepositRsp, error) {
+func (cli *Client) Deposit(req NetellerPaymentReq) (*NetellerPaymentRsp, error) {
+	req.OutType = int(Deposit)
+	return cli.CreatePaymentHandle(&req)
+}
 
-	rawURL := cli.BaseURL
+// 预充值/预提现:都是走这里
+func (cli *Client) CreatePaymentHandle(req *NetellerPaymentReq) (*NetellerPaymentRsp, error) {
+	// Prepare request data
+	amountInCents := req.Amount.Mul(req.Amount, big.NewFloat(100)).Text('f', 0)
 
-	//拿到签名的参数
-	requestParams := cli.createRequestParams(req)
-	requestSignatureList := cli.getRequestSignatureList()
-	gtAuthenticationHeader := utils.GetGtAuthenticationHeader(requestParams, requestSignatureList, cli.MerchantKey)
+	transactionType := "STANDALONE_CREDIT"
+	if int(Deposit) == req.OutType {
+		transactionType = "PAYMENT"
+	}
 
-	//返回值会放到这里
-	var result PraxisDepositRsp
+	requestData := map[string]interface{}{
+		"merchantRefNum":  req.MerchantRefNum,
+		"transactionType": transactionType,
+		"paymentType":     "NETELLER",
+		"amount":          amountInCents,
+		"currencyCode":    req.Currency,
+		"neteller": map[string]string{
+			"consumerId": req.Email,
+		},
+		"returnLinks": []map[string]string{
+			{"rel": "default", "href": "https://usgaminggamblig.com/payment/return/success"},
+			{"rel": "on_failed", "href": "https://usgaminggamblig.com/payment/return/failed"},
+			{"rel": "on_cancelled", "href": "https://usgaminggamblig.com/payment/return/cancel"},
+		},
+	}
 
-	_, err := cli.ryClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
-		SetCloseConnection(true).
-		R().
-		SetBody(requestParams).
-		SetHeaders(getAuthHeaders(gtAuthenticationHeader)).
-		SetResult(&result).
-		Post(rawURL)
+	// Prepare headers
+	authStr := base64.StdEncoding.EncodeToString([]byte(cli.MerchantID + ":" + cli.MerchantKey))
+	encodedAuth := url.QueryEscape(authStr)
 
-	//fmt.Printf("accessToken: %+v\n", resp)
+	headers := map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Basic " + encodedAuth,
+		"Simulator":     "EXTERNAL",
+	}
 
+	// Marshal request to JSON
+	reqBody, err := json.Marshal(requestData)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to marshal request: %v", err)
 	}
 
-	return &result, err
-}
+	log.Printf("nettler#createPaymentHandle#req:%s", string(reqBody))
 
-func (cli *Client) createRequestParams(req PraxisDepositReq) map[string]interface{} {
-	params := make(map[string]interface{})
-
-	params["merchant_id"] = cli.MerchantID // Assuming these are package-level variables
-	params["application_key"] = cli.ApplicationKey
-	params["intent"] = req.Intent
-	params["currency"] = req.Currency
-	params["amount"] = req.Amount
-	params["cid"] = req.Cid
-	params["locale"] = cli.ApiLocale
-	params["customer_token"] = req.CustomerToken
-	params["customer_data"] = req.CustomerData
-	params["payment_method"] = req.PaymentMethod
-	params["gateway"] = req.Gateway
-	params["validation_url"] = req.ValidationURL
-	params["notification_url"] = req.NotificationURL
-	params["return_url"] = req.ReturnURL
-	params["order_id"] = req.OrderID
-	params["version"] = cli.ApiVersion
-	params["timestamp"] = time.Now().Unix() // Unix timestamp in seconds
-
-	return params
-}
-
-func (cli *Client) getRequestSignatureList() []string {
-	return []string{
-		"merchant_id",
-		"application_key",
-		"timestamp",
-		"intent",
-		"cid",
-		"order_id",
+	// Create HTTP request
+	httpReq, err := http.NewRequest("POST", cli.CreateHandleURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
+
+	// Set headers
+	for k, v := range headers {
+		httpReq.Header.Set(k, v)
+	}
+
+	// Send request
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Read response
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response: %v", err)
+	}
+
+	log.Printf("nettler#createPaymentHandle#rsp:%s", string(respBody))
+
+	// Parse response
+	var response NetellerPaymentRsp
+	if err := json.Unmarshal(respBody, &response); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %v", err)
+	}
+
+	return &response, nil
 }

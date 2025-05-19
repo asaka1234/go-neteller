@@ -1,4 +1,4 @@
-module github.com/asaka1234/go-praxis
+module github.com/asaka1234/go-neteller
 
 go 1.24.2
 

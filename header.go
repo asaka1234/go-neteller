@@ -1,4 +1,4 @@
-package go_praxis
+package go_neteller
 
 func getHeaders() map[string]string {
 	return map[string]string{
