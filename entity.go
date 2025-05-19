@@ -51,6 +51,14 @@ type PayLoadBO struct {
 
 //----------------------------
 
+type NetellerProcessReq struct {
+	MerchantRefNum     string  `json:"merchantRefNum"`
+	Amount             float64 `json:"amount"`
+	CurrencyCode       string  `json:"currencyCode"`
+	PaymentHandleToken string  `json:"paymentHandleToken"`
+	OutType            int     `json:"outType"`
+}
+
 type NetellerProcessRsp struct {
 	ID     string `json:"id"`     // Transaction ID
 	Status string `json:"status"` // Payment status
