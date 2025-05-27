@@ -9,21 +9,21 @@ type Client struct {
 	MerchantID  string // merchantId
 	MerchantKey string // accessKey
 
-	DepositURL      string
-	WithdrawURL     string
-	CreateHandleURL string
+	CreatePaymentHandleURL string
+
+	//回调地址
+	PaymentBackURL string
 
 	ryClient *resty.Client
 	logger   utils.Logger
 }
 
-func NewClient(logger utils.Logger, merchantID string, merchantKey, depositURL, withdrawURL, createHandleURL string) *Client {
+func NewClient(logger utils.Logger, merchantID string, merchantKey, createPaymentHandleURL, paymentBackURL string) *Client {
 	return &Client{
-		MerchantID:      merchantID,
-		MerchantKey:     merchantKey,
-		DepositURL:      depositURL,
-		WithdrawURL:     withdrawURL,
-		CreateHandleURL: createHandleURL,
+		MerchantID:             merchantID,
+		MerchantKey:            merchantKey,
+		CreatePaymentHandleURL: createPaymentHandleURL,
+		PaymentBackURL:         paymentBackURL,
 
 		ryClient: resty.New(), //client实例
 		logger:   logger,
