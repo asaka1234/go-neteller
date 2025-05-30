@@ -6,24 +6,15 @@ import (
 )
 
 type Client struct {
-	MerchantID  string // merchantId
-	MerchantKey string // accessKey
-
-	CreatePaymentHandleURL string
-
-	//回调地址
-	PaymentBackURL string
+	Params NetellerInitParams
 
 	ryClient *resty.Client
 	logger   utils.Logger
 }
 
-func NewClient(logger utils.Logger, merchantID string, merchantKey, createPaymentHandleURL, paymentBackURL string) *Client {
+func NewClient(logger utils.Logger, params NetellerInitParams) *Client {
 	return &Client{
-		MerchantID:             merchantID,
-		MerchantKey:            merchantKey,
-		CreatePaymentHandleURL: createPaymentHandleURL,
-		PaymentBackURL:         paymentBackURL,
+		Params: params,
 
 		ryClient: resty.New(), //client实例
 		logger:   logger,

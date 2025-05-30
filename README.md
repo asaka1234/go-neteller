@@ -14,7 +14,4 @@ https://www.neteller.com/fileadmin/content/pdfs/NETELLER_Mass_Payments_Guide.pdf
 
 Comment
 ===============
-1. request payment 商户收钱(入金)
-2. send payment 给用户付钱(出金)
-
-3. 预充值/提现是同一个接口,通过参数来区分
+1预充值/提现是同一个接口,通过参数来区分

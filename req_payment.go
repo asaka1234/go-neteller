@@ -11,7 +11,7 @@ import (
 // https://developer.paysafe.com/en/neteller-api-1/#/operations/create-a-payment-handle
 func (cli *Client) CreatePaymentHandle(req NetellerPaymentHandleReq) (*NetellerPaymentHandleResp, error) {
 
-	rawURL := cli.CreatePaymentHandleURL
+	rawURL := cli.Params.CreatePaymentHandleUrl
 
 	var param map[string]interface{}
 	mapstructure.Decode(req, &param)
@@ -19,11 +19,11 @@ func (cli *Client) CreatePaymentHandle(req NetellerPaymentHandleReq) (*NetellerP
 	//补充字段
 	param["paymentType"] = "NETELLER"
 	param["returnLinks"] = []map[string]string{
-		{"rel": "default", "href": cli.PaymentBackURL}, //回调地址
+		{"rel": "default", "href": cli.Params.PaymentBackUrl}, //回调地址
 	}
 
 	//签名
-	encodedAuth := utils.Sign(cli.MerchantID, cli.MerchantKey)
+	encodedAuth := utils.Sign(cli.Params.MerchantId, cli.Params.MerchantKey)
 
 	//----------------------
 	var result NetellerPaymentHandleResp

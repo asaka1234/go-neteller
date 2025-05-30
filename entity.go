@@ -1,5 +1,13 @@
 package go_neteller
 
+type NetellerInitParams struct {
+	MerchantId  string `json:"merchantId" mapstructure:"merchantId" config:"merchantId"`    // merchantId
+	MerchantKey string `json:"merchantKey" mapstructure:"merchantKey" config:"merchantKey"` // accessKey
+
+	CreatePaymentHandleUrl string `json:"createPaymentHandleUrl" mapstructure:"createPaymentHandleUrl" config:"createPaymentHandleUrl"`
+	PaymentBackUrl         string `json:"paymentBackUrl" mapstructure:"paymentBackUrl" config:"paymentBackUrl"` //回调地址
+}
+
 // ----------pre generate-------------------------
 
 type NetellerPaymentHandleReq struct {
