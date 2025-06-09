@@ -6,13 +6,13 @@ import (
 )
 
 type Client struct {
-	Params NetellerInitParams
+	Params *NetellerInitParams
 
 	ryClient *resty.Client
 	logger   utils.Logger
 }
 
-func NewClient(logger utils.Logger, params NetellerInitParams) *Client {
+func NewClient(logger utils.Logger, params *NetellerInitParams) *Client {
 	return &Client{
 		Params: params,
 
