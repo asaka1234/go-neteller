@@ -15,3 +15,5 @@ https://www.neteller.com/fileadmin/content/pdfs/NETELLER_Mass_Payments_Guide.pdf
 Comment
 ===============
 1预充值/提现是同一个接口,通过参数来区分
+2. 入金：只要创建handle即可, 它会返回一个收银台url,打开付款
+3. 出金: 

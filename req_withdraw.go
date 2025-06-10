@@ -1,0 +1,37 @@
+package go_neteller
+
+import "fmt"
+
+// 集成接口
+// TODO withdraw不需要等待回调
+func (cli *Client) Withdraw(req NetellerPaymentHandleReq) (*NetellerProcessStandaloneCreditsResp, error) {
+
+	//step-1, 创建句柄
+	result, err := cli.CreatePaymentHandle(2, req)
+	if err != nil {
+		return nil, err
+	}
+
+	//step-2, 处理请求
+	//---------------------------------
+	// withdraw: 可以直接下一步 (不需要等用户交互)
+	// deposit: 在webhook中下一步 (需要等用户交互)
+	if result.Status == "PAYABLE" {
+
+		processReq := NetellerProcessStandaloneCreditsReq{
+			Amount:             req.Amount,
+			CurrencyCode:       req.CurrencyCode,
+			MerchantRefNum:     req.MerchantRefNum,
+			PaymentHandleToken: result.PaymentHandleToken, //token
+		}
+
+		processRsp, err := cli.ProcessStandaloneCredits(processReq)
+		if err != nil {
+			return nil, err
+		}
+
+		return processRsp, nil
+	}
+
+	return nil, fmt.Errorf("handle status is %s", result.Status)
+}

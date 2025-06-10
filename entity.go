@@ -4,20 +4,24 @@ type NetellerInitParams struct {
 	MerchantId  string `json:"merchantId" mapstructure:"merchantId" config:"merchantId"  yaml:"merchantId"`     // merchantId
 	MerchantKey string `json:"merchantKey" mapstructure:"merchantKey" config:"merchantKey"  yaml:"merchantKey"` // accessKey
 
-	CreatePaymentHandleUrl string `json:"createPaymentHandleUrl" mapstructure:"createPaymentHandleUrl" config:"createPaymentHandleUrl"  yaml:"createPaymentHandleUrl"`
-	PaymentBackUrl         string `json:"paymentBackUrl" mapstructure:"paymentBackUrl" config:"paymentBackUrl"  yaml:"paymentBackUrl"` //回调地址
+	CreatePaymentHandleUrl      string `json:"createPaymentHandleUrl" mapstructure:"createPaymentHandleUrl" config:"createPaymentHandleUrl"  yaml:"createPaymentHandleUrl"`
+	ProcessStandaloneCreditsUrl string `json:"processStandaloneCreditsUrl" mapstructure:"processStandaloneCreditsUrl" config:"processStandaloneCreditsUrl"  yaml:"processStandaloneCreditsUrl"`
+	ProcessPaymentsUrl          string `json:"processPaymentsUrl" mapstructure:"processPaymentsUrl" config:"processPaymentsUrl"  yaml:"processPaymentsUrl"`
+	GetPaymentHandleUrl         string `json:"getPaymentHandleUrl" mapstructure:"getPaymentHandleUrl" config:"getPaymentHandleUrl"  yaml:"getPaymentHandleUrl"`
+
+	PaymentFeBackUrl string `json:"paymentFeBackUrl" mapstructure:"paymentFeBackUrl" config:"paymentFeBackUrl"  yaml:"paymentFeBackUrl"` //前端回跳地址
 }
 
 // ----------pre generate-------------------------
 
 type NetellerPaymentHandleReq struct {
-	MerchantRefNum  string         `json:"merchantRefNum" mapstructure:"merchantRefNum"`
-	TransactionType string         `json:"transactionType" mapstructure:"transactionType"` //枚举: PAYMENT (付款给商户)， STANDALONE_CREDIT (商户付给User)
-	Amount          int            `json:"amount" mapstructure:"amount"`                   //这里需要做单位转换,用的是法币的最小单位. 比如1.2美元，这里传的是120美分
-	CurrencyCode    string         `json:"currencyCode" mapstructure:"currencyCode"`       //币种
-	CustomerIp      string         `json:"customerIp" mapstructure:"customerIp"`           //客户ip
-	Neteller        NetellerDetail `json:"neteller" mapstructure:"neteller"`
+	MerchantRefNum string         `json:"merchantRefNum" mapstructure:"merchantRefNum"` //这里需要放merchantOrderNo
+	Amount         int            `json:"amount" mapstructure:"amount"`                 //这里需要做单位转换,用的是法币的最小单位. 比如1.2美元，这里传的是120美分
+	CurrencyCode   string         `json:"currencyCode" mapstructure:"currencyCode"`     //币种
+	CustomerIp     string         `json:"customerIp" mapstructure:"customerIp"`         //客户ip
+	Neteller       NetellerDetail `json:"neteller" mapstructure:"neteller"`
 	//sdk搞定
+	//TransactionType string         `json:"transactionType" mapstructure:"transactionType"` //枚举: PAYMENT (付款给商户)， STANDALONE_CREDIT (商户付给User)
 	//PaymentType string `json:"paymentType" mapstructure:"paymentType"` //Fixed  NETELLER
 	//ReturnLinks []ReturnLink `json:"returnLinks" mapstructure:"returnLinks"` //设置回调地址
 }
@@ -46,17 +50,93 @@ type ReturnLink struct {
 
 //-------------------------------------
 
-type PaymentRequest struct {
-	TransactionType string         `json:"transactionType"` //指定是那种请求, 枚举: PAYMENT,STANDALONE_CREDIT .决策是充值/提现
-	MerchantRefNum  string         `json:"merchantRefNum"`  //随机唯一num, This is the merchant reference number created by you
-	PaymentType     string         `json:"paymentType"`     //付款类型，e.g.NETELLER
-	Amount          int            `json:"amount"`          //这里做了单位转换,用的是法币的最小单位. 比如1.2美元，这里传的是120美分
-	CurrencyCode    string         `json:"currencyCode"`    //币种类型
-	ReturnLinks     []ReturnLink   `json:"returnLinks"`     //设置回调url
-	Neteller        NetellerDetail `json:"neteller"`
-	//option
-	CustomerIp     string          `json:"customerIp"`     //customer's IP address
-	BillingDetails *BillingDetails `json:"billingDetails"` // customer's billing details
+type NetellerProcessStandaloneCreditsReq struct {
+	MerchantRefNum     string `json:"merchantRefNum" mapstructure:"merchantRefNum"`
+	Amount             int    `json:"amount" mapstructure:"amount"`
+	CurrencyCode       string `json:"currencyCode" mapstructure:"currencyCode"`
+	PaymentHandleToken string `json:"paymentHandleToken" mapstructure:"paymentHandleToken"`
+}
+
+type NetellerProcessStandaloneCreditsResp struct {
+	Id                 string `json:"id"`          //psp的订单号
+	PaymentType        string `json:"paymentType"` //写死的 NETELLER
+	PaymentHandleToken string `json:"paymentHandleToken"`
+	MerchantRefNum     string `json:"merchantRefNum"` //商户订单号
+	CurrencyCode       string `json:"currencyCode"`
+	Status             string `json:"status"` //枚举: RECEIVED,COMPLETED,HELD,FAILED,CANCELLED,PENDING
+	Amount             int    `json:"amount"` //最小单位，比如美分
+	ReturnLinks        []struct {
+		Rel  string `json:"rel"`
+		Href string `json:"href"`
+	} `json:"returnLinks"`
+	LiveMode        bool `json:"liveMode"`
+	GatewayResponse struct {
+		Id              string `json:"id"`
+		Amount          string `json:"amount"`
+		Currency        string `json:"currency"`
+		TransactionType string `json:"transactionType"`
+		Description     string `json:"description"`
+		Status          string `json:"status"`
+		Processor       string `json:"processor"`
+	} `json:"gatewayResponse"`
+	Neteller NetellerDetail `json:"neteller"`
+}
+
+//-------------------------------------
+
+type NetellerProcessPaymentsReq struct {
+	MerchantRefNum     string `json:"merchantRefNum" mapstructure:"merchantRefNum"`
+	Amount             int    `json:"amount" mapstructure:"amount"`
+	CurrencyCode       string `json:"currencyCode" mapstructure:"currencyCode"`
+	PaymentHandleToken string `json:"paymentHandleToken" mapstructure:"paymentHandleToken"`
+}
+
+type NetellerProcessPaymentsResp struct {
+	Id                 string `json:"id"`
+	PaymentType        string `json:"paymentType"`
+	PaymentHandleToken string `json:"paymentHandleToken"`
+	MerchantRefNum     string `json:"merchantRefNum"`
+	CurrencyCode       string `json:"currencyCode"`
+	SettleWithAuth     bool   `json:"settleWithAuth"`
+	TxnTime            string `json:"txnTime"`
+	BillingDetails     struct {
+		Street1 string `json:"street1"`
+		Street2 string `json:"street2"`
+		City    string `json:"city"`
+		Zip     string `json:"zip"`
+		Country string `json:"country"`
+	} `json:"billingDetails"`
+	Status                  string `json:"status"`
+	GatewayReconciliationId string `json:"gatewayReconciliationId"`
+	Amount                  int    `json:"amount"`
+	ConsumerIp              string `json:"consumerIp"`
+	LiveMode                bool   `json:"liveMode"`
+	GatewayResponse         struct {
+		OrderId           string `json:"orderId"`
+		MerchantRefId     string `json:"merchantRefId"`
+		TotalAmount       int    `json:"totalAmount"`
+		Currency          string `json:"currency"`
+		Lang              string `json:"lang"`
+		CustomerId        string `json:"customerId"`
+		VerificationLevel string `json:"verificationLevel"`
+		TransactionId     string `json:"transactionId"`
+		TransactionType   string `json:"transactionType"`
+		Description       string `json:"description"`
+		Status            string `json:"status"`
+		Processor         string `json:"processor"`
+	} `json:"gatewayResponse"`
+	AvailableToSettle int `json:"availableToSettle"`
+	Neteller          struct {
+		ConsumerId       string `json:"consumerId"`
+		ConsumerIdLocked bool   `json:"consumerIdLocked"`
+	} `json:"neteller"`
+	Settlements struct {
+		Amount         int    `json:"amount"`
+		TxnTime        string `json:"txnTime"`
+		MerchantRefNum string `json:"merchantRefNum"`
+		Id             string `json:"id"`
+		Status         string `json:"status"`
+	} `json:"settlements"`
 }
 
 //-----------------------------------------------------------
@@ -65,8 +145,8 @@ type NetellerPaymentHandleResp struct {
 	//error
 	Error ErrorInfo `json:"error"` //psp三方的订单号
 	//succeed
-	ID                 string `json:"id" mapstructure:"id"`                                 //代表这个session
-	PaymentHandleToken string `json:"paymentHandleToken" mapstructure:"paymentHandleToken"` //可以认为是psp的订单号
+	ID                 string `json:"id" mapstructure:"id"`                                 //psp的订单号
+	PaymentHandleToken string `json:"paymentHandleToken" mapstructure:"paymentHandleToken"` //类似session
 	MerchantRefNum     string `json:"merchantRefNum" mapstructure:"merchantRefNum"`
 	CurrencyCode       string `json:"currencyCode" mapstructure:"currencyCode"`
 	Status             string `json:"status" mapstructure:"status"` //枚举: PAYABLE,INITIATED,FAILED,EXPIRED,COMPLETED
@@ -81,7 +161,7 @@ type NetellerPaymentHandleResp struct {
 // 重要
 type GatewayResponse struct {
 	OrderId     string `json:"orderId" mapstructure:"orderId"`         //psp的订单号
-	TotalAmount int    `json:"totalAmount" mapstructure:"totalAmount"` //The total amount due for this order, including all items, fees, taxes
+	TotalAmount string `json:"totalAmount" mapstructure:"totalAmount"` //The total amount due for this order, including all items, fees, taxes
 	Currency    string `json:"currency" mapstructure:"currency"`
 	Status      string `json:"status" mapstructure:"status"` //枚举: pending,cancelled,failed (The order was not paid).,paid,expired (The order had expired. Default expiry time is 15 mins).
 	Lang        string `json:"lang" mapstructure:"lang"`     //en_US
@@ -98,6 +178,63 @@ type ErrorInfo struct {
 	Code    string   `json:"code"`    //5279
 	Message string   `json:"message"` //Invalid credentials
 	Details []string `json:"details"`
+}
+
+//------------------------
+
+type NetellerGetPaymentHandleResp struct {
+	Meta struct {
+		NumberOfRecords int `json:"numberOfRecords"`
+		Limit           int `json:"limit"`
+		Page            int `json:"page"`
+	} `json:"meta"`
+	PaymentHandles []struct {
+		Id                 string `json:"id"`
+		MerchantRefNum     string `json:"merchantRefNum"`
+		PaymentHandleToken string `json:"paymentHandleToken"`
+		Status             string `json:"status"`
+		PaymentType        string `json:"paymentType"`
+		LiveMode           bool   `json:"liveMode"`
+		Usage              string `json:"usage"`
+		Action             string `json:"action"`
+		ExecutionMode      string `json:"executionMode"`
+		Amount             int    `json:"amount"`
+		CurrencyCode       string `json:"currencyCode"`
+		MerchantDescriptor struct {
+			DynamicDescriptor string `json:"dynamicDescriptor"`
+			Phone             string `json:"phone"`
+		} `json:"merchantDescriptor"`
+		BillingDetails struct {
+			Street1 string `json:"street1"`
+			Street2 string `json:"street2"`
+			City    string `json:"city"`
+			Zip     string `json:"zip"`
+			Country string `json:"country"`
+		} `json:"billingDetails"`
+		CustomerIp        string `json:"customerIp"`
+		TimeToLiveSeconds int    `json:"timeToLiveSeconds"`
+		GatewayResponse   struct {
+			OrderId     string `json:"orderId"`
+			TotalAmount int    `json:"totalAmount"`
+			Currency    string `json:"currency"`
+			Lang        string `json:"lang"`
+			Status      string `json:"status"`
+			Processor   string `json:"processor"`
+		} `json:"gatewayResponse"`
+		ReturnLinks struct {
+			Rel  string `json:"rel"`
+			Href string `json:"href"`
+		} `json:"returnLinks"`
+		TransactionType string `json:"transactionType"`
+		Links           []struct {
+			Rel  string `json:"rel"`
+			Href string `json:"href"`
+		} `json:"links"`
+		Neteller struct {
+			ConsumerId       string `json:"consumerId"`
+			ConsumerIdLocked bool   `json:"consumerIdLocked"`
+		} `json:"neteller"`
+	} `json:"paymentHandles"`
 }
 
 // ============== callback ======================================================
