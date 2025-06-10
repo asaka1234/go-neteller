@@ -18,7 +18,6 @@ type NetellerPaymentHandleReq struct {
 	MerchantRefNum string         `json:"merchantRefNum" mapstructure:"merchantRefNum"` //这里需要放merchantOrderNo
 	Amount         int            `json:"amount" mapstructure:"amount"`                 //这里需要做单位转换,用的是法币的最小单位. 比如1.2美元，这里传的是120美分
 	CurrencyCode   string         `json:"currencyCode" mapstructure:"currencyCode"`     //币种
-	CustomerIp     string         `json:"customerIp" mapstructure:"customerIp"`         //客户ip
 	Neteller       NetellerDetail `json:"neteller" mapstructure:"neteller"`
 	//sdk搞定
 	//TransactionType string         `json:"transactionType" mapstructure:"transactionType"` //枚举: PAYMENT (付款给商户)， STANDALONE_CREDIT (商户付给User)

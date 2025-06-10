@@ -22,9 +22,8 @@ func TestDeposit(t *testing.T) {
 func GenDepositRequestDemo() NetellerPaymentHandleReq {
 	return NetellerPaymentHandleReq{
 		CurrencyCode:   "USD",
-		CustomerIp:     "18.29.120.32",
 		Amount:         50000,
-		MerchantRefNum: "24567821113", //商户订单号
+		MerchantRefNum: "245637821113", //商户订单号
 		Neteller: NetellerDetail{
 			ConsumerId: "demo@gmail.com",
 		},
