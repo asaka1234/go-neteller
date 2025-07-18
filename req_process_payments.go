@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/asaka1234/go-neteller/utils"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -21,7 +22,7 @@ func (cli *Client) ProcessPayments(req NetellerProcessPaymentsReq) (*NetellerPro
 	//----------------------
 	var result NetellerProcessPaymentsResp
 
-	resp1, err := cli.ryClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+	resp2, err := cli.ryClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
 		SetCloseConnection(true).
 		R().
 		SetBody(param).
@@ -31,10 +32,16 @@ func (cli *Client) ProcessPayments(req NetellerProcessPaymentsReq) (*NetellerPro
 		SetError(&result).
 		Post(rawURL)
 
-	fmt.Printf("result: %s\n", string(resp1.Body()))
+	restLog, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(utils.GetRestyLog(resp2))
+	cli.logger.Infof("PSPResty#neteller#ProcessPayments->%s", string(restLog))
 
 	if err != nil {
 		return nil, err
+	}
+	
+	if resp2.Error() != nil {
+		//反序列化错误会在此捕捉
+		return nil, fmt.Errorf("%v, body:%s", resp2.Error(), resp2.Body())
 	}
 
 	return &result, nil

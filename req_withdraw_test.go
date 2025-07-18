@@ -5,10 +5,26 @@ import (
 	"testing"
 )
 
-func TestWithdraw(t *testing.T) {
+type VLog struct {
+}
 
+func (l VLog) Debugf(format string, args ...interface{}) {
+	fmt.Printf(format+"\n", args...)
+}
+func (l VLog) Infof(format string, args ...interface{}) {
+	fmt.Printf(format+"\n", args...)
+}
+func (l VLog) Warnf(format string, args ...interface{}) {
+	fmt.Printf(format+"\n", args...)
+}
+func (l VLog) Errorf(format string, args ...interface{}) {
+	fmt.Printf(format+"\n", args...)
+}
+
+func TestWithdraw(t *testing.T) {
+	vLog := VLog{}
 	//构造client
-	cli := NewClient(nil, &NetellerInitParams{MERCHANT_ID, MERCHANT_KEY, CreatePaymentHandleUrl, ProcessStandaloneCreditsUrl, ProcessPaymentsUrl, GetPaymentHandleUrl, CreatePaymentHandleFeBackUrl})
+	cli := NewClient(vLog, &NetellerInitParams{MERCHANT_ID, MERCHANT_KEY, CreatePaymentHandleUrl, ProcessStandaloneCreditsUrl, ProcessPaymentsUrl, GetPaymentHandleUrl, CreatePaymentHandleFeBackUrl})
 
 	//发请求
 	resp, err := cli.Withdraw(GenWithdrawRequestDemo())

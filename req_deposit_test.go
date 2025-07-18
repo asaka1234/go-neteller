@@ -6,9 +6,9 @@ import (
 )
 
 func TestDeposit(t *testing.T) {
-
+	vLog := VLog{}
 	//构造client
-	cli := NewClient(nil, &NetellerInitParams{MERCHANT_ID, MERCHANT_KEY, CreatePaymentHandleUrl, ProcessStandaloneCreditsUrl, ProcessPaymentsUrl, GetPaymentHandleUrl, CreatePaymentHandleFeBackUrl})
+	cli := NewClient(vLog, &NetellerInitParams{MERCHANT_ID, MERCHANT_KEY, CreatePaymentHandleUrl, ProcessStandaloneCreditsUrl, ProcessPaymentsUrl, GetPaymentHandleUrl, CreatePaymentHandleFeBackUrl})
 
 	//发请求
 	resp, err := cli.Deposit(GenDepositRequestDemo())
@@ -23,7 +23,7 @@ func GenDepositRequestDemo() NetellerPaymentHandleReq {
 	return NetellerPaymentHandleReq{
 		CurrencyCode:   "USD",
 		Amount:         50000,
-		MerchantRefNum: "245637821113", //商户订单号
+		MerchantRefNum: "21441113", //商户订单号
 		Neteller: NetellerDetail{
 			ConsumerId: "demo@gmail.com",
 		},

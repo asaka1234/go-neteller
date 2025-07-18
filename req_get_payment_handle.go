@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/asaka1234/go-neteller/utils"
+	jsoniter "github.com/json-iterator/go"
 )
 
 // https://developer.paysafe.com/en/neteller-api-1/#/operations/get-payment-handle-using-merchant-reference-number
@@ -17,7 +18,7 @@ func (cli *Client) GetPaymentHandle(merchantRefNum string) (*NetellerGetPaymentH
 	//----------------------
 	var result NetellerGetPaymentHandleResp
 
-	resp1, err := cli.ryClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
+	resp2, err := cli.ryClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
 		SetCloseConnection(true).
 		R().
 		SetQueryParam("merchantRefNum", merchantRefNum).
@@ -27,10 +28,16 @@ func (cli *Client) GetPaymentHandle(merchantRefNum string) (*NetellerGetPaymentH
 		SetError(&result).
 		Get(rawURL)
 
-	fmt.Printf("result: %s\n", string(resp1.Body()))
+	restLog, _ := jsoniter.ConfigCompatibleWithStandardLibrary.Marshal(utils.GetRestyLog(resp2))
+	cli.logger.Infof("PSPResty#neteller#GetPaymentHandle->%s", string(restLog))
 
 	if err != nil {
 		return nil, err
+	}
+	
+	if resp2.Error() != nil {
+		//反序列化错误会在此捕捉
+		return nil, fmt.Errorf("%v, body:%s", resp2.Error(), resp2.Body())
 	}
 
 	return &result, nil
