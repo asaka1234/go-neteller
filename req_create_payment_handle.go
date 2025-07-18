@@ -53,10 +53,10 @@ func (cli *Client) CreatePaymentHandle(transactionType int, req NetellerPaymentH
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if resp2.Error() != nil {
 		//反序列化错误会在此捕捉
-		return nil, fmt.Errorf("%v, body:%s", resp2.Error(), resp2.Body())
+		return nil, fmt.Errorf("%v", resp2.Error())
 	}
 
 	return &result, nil
