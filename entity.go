@@ -111,18 +111,18 @@ type NetellerProcessPaymentsResp struct {
 	ConsumerIp              string `json:"consumerIp"`
 	LiveMode                bool   `json:"liveMode"`
 	GatewayResponse         struct {
-		OrderId           string `json:"orderId"`
-		MerchantRefId     string `json:"merchantRefId"`
-		TotalAmount       int    `json:"totalAmount"`
-		Currency          string `json:"currency"`
-		Lang              string `json:"lang"`
-		CustomerId        string `json:"customerId"`
-		VerificationLevel string `json:"verificationLevel"`
-		TransactionId     string `json:"transactionId"`
-		TransactionType   string `json:"transactionType"`
-		Description       string `json:"description"`
-		Status            string `json:"status"`
-		Processor         string `json:"processor"`
+		OrderId           string      `json:"orderId"`
+		MerchantRefId     string      `json:"merchantRefId"`
+		TotalAmount       interface{} `json:"totalAmount"`
+		Currency          string      `json:"currency"`
+		Lang              string      `json:"lang"`
+		CustomerId        string      `json:"customerId"`
+		VerificationLevel string      `json:"verificationLevel"`
+		TransactionId     string      `json:"transactionId"`
+		TransactionType   string      `json:"transactionType"`
+		Description       string      `json:"description"`
+		Status            string      `json:"status"`
+		Processor         string      `json:"processor"`
 	} `json:"gatewayResponse"`
 	AvailableToSettle int `json:"availableToSettle"`
 	Neteller          struct {
@@ -159,11 +159,11 @@ type NetellerPaymentHandleResp struct {
 
 // 重要
 type GatewayResponse struct {
-	OrderId     string `json:"orderId" mapstructure:"orderId"`         //psp的订单号
-	TotalAmount string `json:"totalAmount" mapstructure:"totalAmount"` //The total amount due for this order, including all items, fees, taxes
-	Currency    string `json:"currency" mapstructure:"currency"`
-	Status      string `json:"status" mapstructure:"status"` //枚举: pending,cancelled,failed (The order was not paid).,paid,expired (The order had expired. Default expiry time is 15 mins).
-	Lang        string `json:"lang" mapstructure:"lang"`     //en_US
+	OrderId     string      `json:"orderId" mapstructure:"orderId"`         //psp的订单号
+	TotalAmount interface{} `json:"totalAmount" mapstructure:"totalAmount"` //The total amount due for this order, including all items, fees, taxes
+	Currency    string      `json:"currency" mapstructure:"currency"`
+	Status      string      `json:"status" mapstructure:"status"` //枚举: pending,cancelled,failed (The order was not paid).,paid,expired (The order had expired. Default expiry time is 15 mins).
+	Lang        string      `json:"lang" mapstructure:"lang"`     //en_US
 	//Processor   string `json:"processor" mapstructure:"processor"` //固定: NETELLER
 }
 
@@ -213,12 +213,12 @@ type NetellerGetPaymentHandleResp struct {
 		CustomerIp        string `json:"customerIp"`
 		TimeToLiveSeconds int    `json:"timeToLiveSeconds"`
 		GatewayResponse   struct {
-			OrderId     string `json:"orderId"`
-			TotalAmount int    `json:"totalAmount"`
-			Currency    string `json:"currency"`
-			Lang        string `json:"lang"`
-			Status      string `json:"status"`
-			Processor   string `json:"processor"`
+			OrderId     string      `json:"orderId"`
+			TotalAmount interface{} `json:"totalAmount"` //文档是int,但是实际是string
+			Currency    string      `json:"currency"`
+			Lang        string      `json:"lang"`
+			Status      string      `json:"status"`
+			Processor   string      `json:"processor"`
 		} `json:"gatewayResponse"`
 		ReturnLinks struct {
 			Rel  string `json:"rel"`
