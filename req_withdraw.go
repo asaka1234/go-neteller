@@ -12,6 +12,12 @@ func (cli *Client) Withdraw(req NetellerPaymentHandleReq) (*NetellerProcessStand
 		return nil, err
 	}
 
+	if result.Error.Message != "" {
+		resp := &NetellerProcessStandaloneCreditsResp{}
+		resp.BodyError = result.Error
+		return resp, nil
+	}
+
 	//step-2, 处理请求
 	//---------------------------------
 	// withdraw: 可以直接下一步 (不需要等用户交互) . 二阶段请求发送完毕后,其状态为pending,  还是需要等待webhook来完成的.

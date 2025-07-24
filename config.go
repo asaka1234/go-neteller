@@ -7,6 +7,12 @@ const (
 	MERCHANT_ID  = "pmle-1102750"
 	MERCHANT_KEY = "hiahaihaihaihaihaiahiahihaih"
 
+	CreatePaymentHandleUrl       = "https://api.test.paysafe.com/paymenthub/v1/paymenthandles"
+	ProcessStandaloneCreditsUrl  = "https://api.test.paysafe.com/paymenthub/v1/standalonecredits"
+	ProcessPaymentsUrl           = "https://api.test.paysafe.com/paymenthub/v1/payments"
+	GetPaymentHandleUrl          = "https://api.test.paysafe.com/paymenthub/v1/paymenthandles"
+	CreatePaymentHandleFeBackUrl = "https://intluc-test.logtec.dev/zh/depositReport"
+
 	SANDBOX_URL = "https://api.test.paysafe.com/paymenthub/v1"
 	LIVE_URL    = "https://api.paysafe.com/paymenthub/v1"
 

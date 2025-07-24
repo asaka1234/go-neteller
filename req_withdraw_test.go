@@ -28,6 +28,12 @@ func TestWithdraw(t *testing.T) {
 
 	//发请求
 	resp, err := cli.Withdraw(GenWithdrawRequestDemo())
+
+	if resp != nil && resp.BodyError.Message != "" {
+		fmt.Printf("code:%s message:%s detail:%v\n", resp.BodyError.Code, resp.BodyError.Message, resp.BodyError.Details)
+		return
+	}
+
 	if err != nil {
 		fmt.Printf("err:%s\n", err.Error())
 		return
