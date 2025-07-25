@@ -32,6 +32,13 @@ func TestWithdraw(t *testing.T) {
 		fmt.Printf("err:%s\n", err.Error())
 		return
 	}
+
+	if resp.BodyError.Message != "" {
+		// body里error
+		fmt.Printf("code: %s, msg: %s, detail: %v\n", resp.BodyError.Code, resp.BodyError.Message, resp.BodyError.Details)
+		return
+	}
+
 	fmt.Printf("resp:%+v\n", resp)
 }
 

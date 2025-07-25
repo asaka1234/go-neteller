@@ -5,6 +5,14 @@ import "strings"
 type NetellerEventType string
 
 const (
+	MERCHANT_ID                  = "pmle-1102750"
+	MERCHANT_KEY                 = ""
+	CreatePaymentHandleUrl       = "https://api.test.paysafe.com/paymenthub/v1/paymenthandles"
+	ProcessStandaloneCreditsUrl  = "https://api.test.paysafe.com/paymenthub/v1/standalonecredits"
+	ProcessPaymentsUrl           = "https://api.test.paysafe.com/paymenthub/v1/payments"
+	GetPaymentHandleUrl          = "https://api.test.paysafe.com/paymenthub/v1/paymenthandles"
+	CreatePaymentHandleFeBackUrl = "https://intluc-test.logtec.dev/zh/depositReport"
+
 	PaymentHandlePayable   NetellerEventType = "PAYMENT_HANDLE_PAYABLE"
 	PaymentHandleCompleted NetellerEventType = "PAYMENT_HANDLE_COMPLETED"
 	PaymentHandleFailed    NetellerEventType = "PAYMENT_HANDLE_FAILED"
