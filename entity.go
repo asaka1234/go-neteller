@@ -79,7 +79,7 @@ type NetellerProcessStandaloneCreditsResp struct {
 		Processor       string `json:"processor"`
 	} `json:"gatewayResponse"`
 	Neteller  NetellerDetail `json:"neteller"`
-	BodyError ErrorInfo      `json:"bodyError"`
+	BodyError ErrorInfo      `json:"error"`
 }
 
 //-------------------------------------
